@@ -63,7 +63,7 @@ function App() {
 			style={{ width: "1000px", height: "800px", border: "1px solid black" }}
 			// onMouseMove={handleMouseMove}
 		>
-			{/* <input
+			<input
 				placeholder="Message..."
 				value={message}
 				onChange={handleChangeMessage}
@@ -71,7 +71,7 @@ function App() {
 			<button onClick={handleSendMessage}>Send Message</button>
 			{messageRecieved.map((message, index) => (
 				<div key={index}>{message}</div>
-			))} */}
+			))}
 			<select value={userActived} onChange={handleSelect}>
 				<option value={"user1"}>User 1</option>
 				<option value={"user2"}>User 2</option>
