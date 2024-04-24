@@ -5,19 +5,14 @@ const socket = io("http://localhost:3000");
 
 function App() {
 	const [messageRecieved, setMessageRecieved] = useState<string[]>([]);
-	const [listUsers, setListUsers] = useState<string[]>([]);
 
 	const [message, setMessage] = useState("");
-	const [userActived, setUserActived] = useState("");
 	const [position, setPosition] = useState({
 		x: 0,
 		y: 0,
 	});
 
-	const mousePositionRef = useRef({
-		x: 0,
-		y: 0,
-	});
+	const gameRef = useRef(null);
 
 	// useEffect(() => {
 	// 	socket.on("receive_message", (data) => {
@@ -26,10 +21,15 @@ function App() {
 	// }, []);
 
 	useEffect(() => {
-		socket.on("receive_user", (data) => {
-			setListUsers((pre) => [...pre, data.user]);
+		const context = gameRef.current?.getContext("2d");
+		socket.on("position", (data) => {
+			setPosition(data);
+			// context.clearRect(0, 0, gameRef.current?.width, gameRef.current?.height);
+			// context.fillRect(data.x, data.y, 20, 20);
 		});
 	}, []);
+
+	console.log("position", position);
 
 	const handleSendMessage = () => {
 		setMessageRecieved((pre) => [...pre, message]);
@@ -42,28 +42,34 @@ function App() {
 		setMessage(event.target.value);
 	};
 
-	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-		setPosition({ x: e.clientX, y: e.clientY });
-		mousePositionRef.current = {
-			x: e.clientX,
-			y: e.clientY,
-		};
-	};
-
-	const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setUserActived(e.target.value);
-		socket.emit("send_user", {
-			user: e.target.value,
-		});
-		setListUsers((pre) => [...pre, e.target.value]);
+	const handleClickDirection = (
+		direction: "right" | "left" | "up" | "down"
+	) => {
+		socket.emit("move", direction);
 	};
 
 	return (
 		<div
-			style={{ width: "1000px", height: "800px", border: "1px solid black" }}
-			// onMouseMove={handleMouseMove}
+			style={{
+				width: "1000px",
+				height: "800px",
+				border: "1px solid black",
+			}}
 		>
-			<input
+			<canvas
+				ref={gameRef}
+				width="640"
+				height="480"
+				style={{ border: "1px solid black" }}
+			></canvas>
+			<p>
+				<button onClick={() => handleClickDirection("right")}>Right</button>
+				<button onClick={() => handleClickDirection("left")}>Left</button>
+				<button onClick={() => handleClickDirection("up")}>Up</button>
+				<button onClick={() => handleClickDirection("down")}>Down</button>
+			</p>
+
+			{/* <input
 				placeholder="Message..."
 				value={message}
 				onChange={handleChangeMessage}
@@ -71,16 +77,7 @@ function App() {
 			<button onClick={handleSendMessage}>Send Message</button>
 			{messageRecieved.map((message, index) => (
 				<div key={index}>{message}</div>
-			))}
-			<select value={userActived} onChange={handleSelect}>
-				<option value={"user1"}>User 1</option>
-				<option value={"user2"}>User 2</option>
-				<option value={"user3"}>User 3</option>
-			</select>
-
-			{listUsers.map((user, index) => (
-				<div key={index}>{user}</div>
-			))}
+			))} */}
 		</div>
 	);
 }

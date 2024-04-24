@@ -13,13 +13,35 @@ const io = new Server(server, {
 	cors: { origin: "http://localhost:5173" },
 });
 
+let position = {
+	x: 200,
+	y: 200,
+};
+
 io.on("connection", (socket) => {
 	socket.on("send_message", (data) => {
 		socket.broadcast.emit("receive_message", data);
 	});
-
-	socket.on("send_user", (data) => {
-		socket.broadcast.emit("receive_user", data);
+	socket.broadcast.emit("position", position);
+	socket.on("move", (data) => {
+		switch (data) {
+			case "left":
+				position.x -= 5;
+				socket.broadcast.emit("position", position);
+				break;
+			case "right":
+				position.x += 5;
+				socket.broadcast.emit("position", position);
+				break;
+			case "up":
+				position.y -= 5;
+				socket.broadcast.emit("position", position);
+				break;
+			case "down":
+				position.y += 5;
+				socket.broadcast.emit("position", position);
+				break;
+		}
 	});
 
 	socket.on("disconnect", () => {
