@@ -12,8 +12,6 @@ function App() {
 		y: 0,
 	});
 
-	const gameRef = useRef(null);
-
 	// useEffect(() => {
 	// 	socket.on("receive_message", (data) => {
 	// 		setMessageRecieved((pre) => [...pre, data.message]);
@@ -21,15 +19,11 @@ function App() {
 	// }, []);
 
 	useEffect(() => {
-		const context = gameRef.current?.getContext("2d");
 		socket.on("position", (data) => {
+			console.log('data', data)
 			setPosition(data);
-			// context.clearRect(0, 0, gameRef.current?.width, gameRef.current?.height);
-			// context.fillRect(data.x, data.y, 20, 20);
 		});
 	}, []);
-
-	console.log("position", position);
 
 	const handleSendMessage = () => {
 		setMessageRecieved((pre) => [...pre, message]);
@@ -46,28 +40,34 @@ function App() {
 		direction: "right" | "left" | "up" | "down"
 	) => {
 		socket.emit("move", direction);
+		switch (direction) {
+			case "left":
+				setPosition({x: position.x - 5, y: position.y});
+				break;
+			case "right":
+				setPosition({x: position.x + 5, y: position.y});
+				break;
+			case "up":
+				setPosition({x: position.x, y: position.y - 5});
+				break;
+			case "down":
+				setPosition({x: position.x, y: position.y + 5});
+				break;
+		}
 	};
 
 	return (
+		<>
 		<div
 			style={{
 				width: "1000px",
-				height: "800px",
+				height: "500px",
 				border: "1px solid black",
+				position: 'relative'
 			}}
 		>
-			<canvas
-				ref={gameRef}
-				width="640"
-				height="480"
-				style={{ border: "1px solid black" }}
-			></canvas>
-			<p>
-				<button onClick={() => handleClickDirection("right")}>Right</button>
-				<button onClick={() => handleClickDirection("left")}>Left</button>
-				<button onClick={() => handleClickDirection("up")}>Up</button>
-				<button onClick={() => handleClickDirection("down")}>Down</button>
-			</p>
+		<div style={{width: '30px', height: '30px', borderRadius: '50%', background: 'blue', position: 'absolute', top: position.y, left: position.x}} />
+		
 
 			{/* <input
 				placeholder="Message..."
@@ -79,6 +79,14 @@ function App() {
 				<div key={index}>{message}</div>
 			))} */}
 		</div>
+			<p>
+			<button onClick={() => handleClickDirection("right")}>Right</button>
+			<button onClick={() => handleClickDirection("left")}>Left</button>
+			<button onClick={() => handleClickDirection("up")}>Up</button>
+			<button onClick={() => handleClickDirection("down")}>Down</button>
+		</p>
+		</>
+		
 	);
 }
 

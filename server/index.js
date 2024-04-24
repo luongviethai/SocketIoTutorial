@@ -14,15 +14,14 @@ const io = new Server(server, {
 });
 
 let position = {
-	x: 200,
-	y: 200,
+	x: 0,
+	y: 0,
 };
 
 io.on("connection", (socket) => {
 	socket.on("send_message", (data) => {
 		socket.broadcast.emit("receive_message", data);
 	});
-	socket.broadcast.emit("position", position);
 	socket.on("move", (data) => {
 		switch (data) {
 			case "left":
