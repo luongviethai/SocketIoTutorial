@@ -68,6 +68,7 @@ function Room() {
 						width: "30px",
 						height: "30px",
 						border: "1px solid black",
+						borderRadius: "50%",
 						position: "absolute",
 						top: note.x,
 						left: note.y,
