@@ -52,6 +52,7 @@ io.on("connection", (socket) => {
 		io.to(socketId).emit("notes", { notes });
 	});
 
+
 	socket.on("disconnecting", () => {
 		const rooms = [...socket.rooms];
 		// leave all the room

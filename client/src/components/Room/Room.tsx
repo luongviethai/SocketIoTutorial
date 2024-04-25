@@ -3,9 +3,11 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
+import Comment from "../Comment"
 
 function Room() {
 	const userManagementRef = useRef(null);
+	const [status, setStatus] = useState<'mouse' | 'comment'>('mouse')
 	const [clients, setClients] = useState<
 		[{ socketId: string; username: string }] | []
 	>([]);
@@ -48,6 +50,7 @@ function Room() {
 	}, []);
 
 	const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+		if(status === 'mouse') return; 
 		const postionRef = userManagementRef.current?.getBoundingClientRect();
 		socket.emit("add_note", {
 			roomId,
@@ -62,20 +65,9 @@ function Room() {
 	const renderNotes = useMemo(
 		() =>
 			_.map(notes, (note) => (
-				<div
-					key={note.id}
-					style={{
-						width: "30px",
-						height: "30px",
-						border: "1px solid black",
-						borderRadius: "50%",
-						position: "absolute",
-						top: note.x,
-						left: note.y,
-					}}
-				/>
+				<Comment key={note.id} note={note} status={status} />
 			)),
-		[notes]
+		[notes, status]
 	);
 
 	const renderClients = useMemo(
@@ -93,6 +85,14 @@ function Room() {
 		[clients, location.state?.username]
 	);
 
+	const handleClickMouse = () => {
+		setStatus('mouse')
+	}
+
+	const handleClickComment = () => {
+		setStatus('comment')
+	}
+
 	return (
 		<div style={{ display: "flex", width: "100%", height: "100%" }}>
 			<div style={{ width: "200px", height: "100%" }} ref={userManagementRef}>
@@ -103,7 +103,9 @@ function Room() {
 						textAlign: "center",
 					}}
 				>
-					Room
+					<div>Status: {status}</div>
+					<button onClick={handleClickMouse}>Mouse</button>
+					<button onClick={handleClickComment}>Comment</button>
 				</div>
 				<div
 					style={{
