@@ -14,6 +14,7 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {};
+const noteSocketMap = [];
 
 const getAllConnectedClients = (roomId) => {
 	return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -27,10 +28,6 @@ const getAllConnectedClients = (roomId) => {
 };
 
 io.on("connection", (socket) => {
-	socket.on("send_message", (data) => {
-		socket.broadcast.emit("receive_message", data);
-	});
-
 	socket.on("join", ({ roomId, username }) => {
 		userSocketMap[socket.id] = username;
 		socket.join(roomId);
@@ -42,6 +39,17 @@ io.on("connection", (socket) => {
 				socketId: socket.id,
 			});
 		});
+	});
+
+	socket.on("add_note", ({ roomId, note }) => {
+		noteSocketMap.push(note);
+		socket.in(roomId).emit("notes", {
+			notes: noteSocketMap,
+		});
+	});
+
+	socket.on("sync_note", ({ socketId, notes }) => {
+		io.to(socketId).emit("notes", { notes });
 	});
 
 	socket.on("disconnecting", () => {
@@ -57,10 +65,6 @@ io.on("connection", (socket) => {
 		delete userSocketMap[socket.id];
 		socket.leave();
 	});
-
-	// socket.on("disconnect", () => {
-	// 	console.log("User Disconnected", socket.id);
-	// });
 });
 
 server.listen(3005, () => {
