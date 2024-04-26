@@ -2,10 +2,23 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import mysql from "mysql2";
 
 const app = express();
-
 app.use(cors());
+
+const db = mysql.createConnection({
+	host: "127.0.0.1",
+	user: "magezon",
+	password: "123456",
+	database: "database",
+	port: 3309,
+});
+
+app.use((req, __res, next) => {
+	req.io = io;
+	next();
+});
 
 const server = http.createServer(app);
 
@@ -37,6 +50,7 @@ io.on("connection", (socket) => {
 				clients,
 				username,
 				socketId: socket.id,
+				notes: noteSocketMap,
 			});
 		});
 	});
@@ -48,10 +62,19 @@ io.on("connection", (socket) => {
 		});
 	});
 
+	socket.on("position", ({ position, roomId, username }) => {
+		const clients = getAllConnectedClients(roomId);
+		const clientSelected = clients.find(
+			(client) => client.username === username
+		);
+		if (clientSelected) clientSelected.position = position;
+
+		socket.in(roomId).emit("clients", clients);
+	});
+
 	socket.on("sync_note", ({ socketId, notes }) => {
 		io.to(socketId).emit("notes", { notes });
 	});
-
 
 	socket.on("disconnecting", () => {
 		const rooms = [...socket.rooms];
@@ -66,6 +89,15 @@ io.on("connection", (socket) => {
 		delete userSocketMap[socket.id];
 		socket.leave();
 	});
+});
+
+app.get("/getUser", (req, res) => {
+	db.query("Select * from user", (err, result) => {
+		if (result) {
+			req.io.emit("users", result);
+		}
+	});
+	res.send("hello ");
 });
 
 server.listen(3005, () => {
