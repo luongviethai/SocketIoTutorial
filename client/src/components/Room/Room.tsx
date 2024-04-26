@@ -104,24 +104,6 @@ function Room() {
 		setStatus("comment");
 	};
 
-	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (status === "mouse") {
-			const postionRef = userManagementRef.current?.getBoundingClientRect();
-			// setPositionHover({
-			// 	x: e.clientY,
-			// 	y: e.clientX - postionRef.right,
-			// });
-
-			socket.emit("position", {
-				roomId,
-				position: {
-					x: e.clientY,
-					y: e.clientX - postionRef.right,
-				},
-				username: location.state?.username,
-			});
-		}
-	};
 	return (
 		<div style={{ display: "flex", width: "100%", height: "100%" }}>
 			<div style={{ width: "200px", height: "100%" }} ref={userManagementRef}>
@@ -160,7 +142,6 @@ function Room() {
 			<div
 				style={{ flex: "1", border: "1px solid black", position: "relative" }}
 				onClick={handleClick}
-				onMouseMove={handleMouseMove}
 			>
 				{renderNotes}
 				<div

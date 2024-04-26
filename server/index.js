@@ -62,16 +62,6 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	socket.on("position", ({ position, roomId, username }) => {
-		const clients = getAllConnectedClients(roomId);
-		const clientSelected = clients.find(
-			(client) => client.username === username
-		);
-		if (clientSelected) clientSelected.position = position;
-
-		socket.in(roomId).emit("clients", clients);
-	});
-
 	socket.on("sync_note", ({ socketId, notes }) => {
 		io.to(socketId).emit("notes", { notes });
 	});
