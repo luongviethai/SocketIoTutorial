@@ -127,6 +127,23 @@ function Room() {
     });
   };
 
+  const renderMouse = useMemo(
+    () =>
+      _.map(clients, (client) => (
+        <div
+          style={{
+            position: "absolute",
+            top: _.get(positionHover, [client.socketId])?.x,
+            left: _.get(positionHover, [client.socketId])?.y,
+            width: "30px",
+            height: "30px",
+            background: "blue",
+          }}
+        />
+      )),
+    [clients, positionHover]
+  );
+
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
       <div style={{ width: "200px", height: "100%" }} ref={userManagementRef}>
@@ -168,7 +185,7 @@ function Room() {
         onMouseMove={handleMouseMove}
       >
         {renderNotes}
-        <div
+        {/* <div
           style={{
             position: "absolute",
             top: _.get(positionHover, [clientActived?.socketId])?.x,
@@ -177,7 +194,8 @@ function Room() {
             height: "30px",
             background: "blue",
           }}
-        />
+        /> */}
+        {renderMouse}
       </div>
     </div>
   );
