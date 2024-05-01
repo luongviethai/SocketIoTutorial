@@ -28,6 +28,7 @@ const io = new Server(server, {
 
 const userSocketMap = {};
 const noteSocketMap = [];
+const positionMouse = {};
 
 const getAllConnectedClients = (roomId) => {
 	return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -65,6 +66,11 @@ io.on("connection", (socket) => {
 	socket.on("sync_note", ({ socketId, notes }) => {
 		io.to(socketId).emit("notes", { notes });
 	});
+	
+	socket.on('position', (data) => {
+		positionMouse[data.id] = data.position;
+		socket.in(data.roomId).emit("position", positionMouse);
+	})
 
 	socket.on("disconnecting", () => {
 		const rooms = [...socket.rooms];
