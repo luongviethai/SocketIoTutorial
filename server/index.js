@@ -3,9 +3,12 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import mysql from "mysql2";
+import {sendEmailController} from "./controllers/emailController.js"
+import bodyParser from "body-parser";
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json())
 
 const db = mysql.createConnection({
 	host: "127.0.0.1",
@@ -95,6 +98,8 @@ app.get("/getUser", (req, res) => {
 	});
 	res.send("hello ");
 });
+
+app.post("/sendEmail", sendEmailController)
 
 server.listen(3005, () => {
 	console.log("Server is running");
